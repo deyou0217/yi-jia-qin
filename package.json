@@ -1,0 +1,20 @@
+{
+  "name": "yi-jia-qin",
+  "version": "1.0.0",
+  "description": "无服务器纯P2P跨平台家庭私密通话App",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.21",
+    "peerjs": "^1.5.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.0",
+    "vite-plugin-pwa": "^0.19.8"
+  }
+}

@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#0d0d1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="一家亲"/>
+<title>一家亲 · 家庭私密通话</title>
+<style>
+/* ══ CSS变量 ══ */
+:root{
+  --bg-deep:#0d0d1a;--bg-card:#1a1a2e;--bg-input:#16213e;--bg-hover:#0f3460;
+  --accent:#e94560;--accent2:#f5a623;--green:#2ecc71;--red:#e74c3c;
+  --text:#e8e8f0;--text-dim:#8888a8;--border:#2a2a4a;
+  --shadow:0 8px 32px rgba(0,0,0,.5);--radius:16px;--radius-sm:8px;
+  --safe-bottom:env(safe-area-inset-bottom,0px)
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB",
+    "Microsoft YaHei","Segoe UI",sans-serif;
+  background:var(--bg-deep);color:var(--text);
+  -webkit-tap-highlight-color:transparent;overflow:hidden;height:100%
+}
+button{cursor:pointer;border:none;outline:none;background:none}
+input{outline:none;border:none;background:none;color:var(--text)}
+
+/* ══ 登录页 ══ */
+.login-page{
+  min-height:100dvh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:24px 16px;
+  background:linear-gradient(160deg,#0d0d1a 0%,#1a0a2e 50%,#0d1a2e 100%);
+  overflow-y:auto
+}
+.login-hero{text-align:center;margin-bottom:32px}
+.hero-icon{font-size:64px;margin-bottom:12px;filter:drop-shadow(0 0 16px #e9456080)}
+.hero-title{
+  font-size:36px;font-weight:800;
+  background:linear-gradient(135deg,#e94560,#f5a623);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:8px
+}
+.hero-sub{color:var(--text-dim);font-size:13px}
+.login-card{
+  width:100%;max-width:420px;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px 24px;box-shadow:var(--shadow)
+}
+.tab-row{display:flex;gap:8px;margin-bottom:24px}
+.tab-btn{
+  flex:1;padding:10px;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;background:var(--bg-input);
+  color:var(--text-dim);transition:all .2s
+}
+.tab-btn.active{
+  background:linear-gradient(135deg,#e9456030,#f5a62320);
+  color:var(--accent);border:1px solid var(--accent)
+}
+.field-group{margin-bottom:16px}
+.field-label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;letter-spacing:.5px}
+.field-row{display:flex;gap:8px;align-items:center}
+.field-input{
+  flex:1;width:100%;background:var(--bg-input);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;
+  color:var(--text);transition:border .2s
+}
+.field-input:focus{border-color:var(--accent)}
+.field-input::placeholder{color:var(--text-dim);font-size:13px}
+.gen-btn{
+  width:42px;height:42px;flex-shrink:0;border-radius:var(--radius-sm);
+  background:var(--bg-input);border:1px solid var(--border);font-size:18px;
+  display:flex;align-items:center;justify-content:center;transition:background .2s
+}
+.gen-btn:hover{background:var(--bg-hover)}
+.error-banner{
+  background:#e9456020;border:1px solid #e9456060;
+  border-radius:var(--radius-sm);padding:10px 14px;
+  font-size:13px;color:#f08080;margin-bottom:14px
+}
+.status-banner{
+  display:flex;align-items:center;gap:8px;
+  background:#2ecc7120;border:1px solid #2ecc7160;
+  border-radius:var(--radius-sm);padding:10px 14px;
+  font-size:13px;color:var(--green);margin-bottom:14px
+}
+.spinner{
+  width:16px;height:16px;flex-shrink:0;
+  border:2px solid transparent;border-top-color:var(--green);
+  border-radius:50%;animation:spin .8s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--accent),#c0392b);
+  border-radius:var(--radius-sm);font-size:16px;font-weight:700;
+  color:#fff;transition:opacity .2s,transform .1s;margin-bottom:16px
+}
+.login-btn:hover:not(:disabled){opacity:.9}
+.login-btn:active:not(:disabled){transform:scale(.98)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+.login-btn.small{width:auto;padding:12px 18px;font-size:14px;margin:0}
+.privacy-note{
+  display:flex;gap:8px;align-items:flex-start;
+  font-size:11px;color:var(--text-dim);line-height:1.6;
+  padding:10px;background:var(--bg-input);border-radius:var(--radius-sm)
+}
+
+/* ══ 聊天页 ══ */
+.chat-page{display:flex;flex-direction:column;height:100dvh;position:relative;overflow:hidden}
+.chat-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--bg-card);
+  border-bottom:1px solid var(--border);position:relative;z-index:10;flex-shrink:0
+}
+.header-left,.header-right{display:flex;align-items:center;gap:10px}
+.room-title{font-size:16px;font-weight:700;letter-spacing:2px;color:var(--accent2);cursor:pointer}
+.room-sub{font-size:11px;color:var(--text-dim)}
+.icon-btn{
+  width:38px;height:38px;border-radius:var(--radius-sm);
+  background:var(--bg-input);font-size:18px;
+  display:flex;align-items:center;justify-content:center;transition:background .2s
+}
+.icon-btn:hover{background:var(--bg-hover)}
+.icon-btn.green{background:#2ecc7125}.icon-btn.green:hover{background:#2ecc7140}
+.icon-btn.red{background:#e74c3c25}.icon-btn.red:hover{background:#e74c3c40}
+.side-panel{
+  position:absolute;top:62px;left:0;
+  width:min(300px,calc(100vw - 32px));
+  max-height:calc(100dvh - 62px - 60px);
+  background:var(--bg-card);border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);border-radius:0 0 var(--radius) 0;
+  padding:16px;overflow-y:auto;z-index:9;box-shadow:var(--shadow)
+}
+.panel-title{font-size:13px;font-weight:700;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.panel-desc{font-size:12px;color:var(--text-dim);margin-bottom:10px}
+.close-btn{
+  margin-top:10px;padding:8px 16px;background:var(--bg-input);
+  border-radius:var(--radius-sm);font-size:13px;color:var(--text-dim)
+}
+.member-item{
+  display:flex;align-items:center;gap:8px;padding:8px 6px;
+  border-radius:var(--radius-sm);transition:background .15s;flex-wrap:wrap
+}
+.member-item:hover{background:var(--bg-hover)}
+.member-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.member-dot.online{background:var(--green);box-shadow:0 0 6px var(--green)}
+.member-dot.offline{background:var(--text-dim)}
+.member-name{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.self-member{opacity:.7}
+.empty-tip{font-size:12px;color:var(--text-dim);text-align:center;padding:16px 0;line-height:1.8}
+.mini-btn{padding:4px 8px;border-radius:6px;background:var(--bg-input);font-size:13px;border:1px solid var(--border);flex-shrink:0}
+.mini-btn:hover{background:var(--bg-hover)}
+.progress-wrap{width:100%;margin-top:4px}
+.progress-bar{width:100%;height:4px;background:var(--bg-input);border-radius:2px;position:relative;overflow:visible}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .1s}
+.progress-text{position:absolute;right:0;top:-18px;font-size:10px;color:var(--green)}
+.my-id-box{margin-top:16px;padding:10px;background:var(--bg-deep);border-radius:var(--radius-sm);border:1px dashed var(--border)}
+.my-id-label{font-size:10px;color:var(--text-dim);margin-bottom:4px}
+.my-id-value{font-size:11px;color:var(--accent2);word-break:break-all;cursor:pointer;font-family:"Courier New",monospace}
+.copy-hint{font-size:9px;color:var(--text-dim);margin-top:2px}
+.msg-list{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;min-height:0}
+.msg-list::-webkit-scrollbar{width:4px}
+.msg-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.empty-chat{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:10px;color:var(--text-dim);font-size:14px;padding:40px 20px
+}
+.empty-icon{font-size:48px;opacity:.5}
+.empty-sub{font-size:12px;opacity:.7;text-align:center}
+.system-msg{display:flex;justify-content:center}
+.system-text{
+  font-size:11px;color:var(--text-dim);background:var(--bg-card);
+  padding:4px 12px;border-radius:20px;border:1px solid var(--border)
+}
+.self-msg{display:flex;justify-content:flex-end}
+.other-msg{display:flex;justify-content:flex-start}
+.msg-bubble-wrap{max-width:70%}
+.msg-sender{font-size:11px;color:var(--text-dim);margin-bottom:3px}
+.msg-bubble{padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.5;word-break:break-word}
+.self-msg .msg-bubble{background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;border-radius:18px 18px 4px 18px}
+.other-msg .msg-bubble{background:var(--bg-card);border:1px solid var(--border);border-radius:18px 18px 18px 4px}
+.msg-time{font-size:10px;color:var(--text-dim);margin-top:3px}
+.self-msg .msg-time{text-align:right}
+.input-bar{
+  display:flex;gap:10px;align-items:center;
+  padding:10px 14px;background:var(--bg-card);
+  border-top:1px solid var(--border);flex-shrink:0;
+  padding-bottom:calc(10px + var(--safe-bottom))
+}
+.msg-input{
+  flex:1;padding:12px 16px;background:var(--bg-input);
+  border:1px solid var(--border);border-radius:24px;
+  font-size:15px;color:var(--text);transition:border .2s
+}
+.msg-input:focus{border-color:var(--accent)}
+.msg-input::placeholder{color:var(--text-dim)}
+.send-btn{
+  padding:12px 20px;background:linear-gradient(135deg,var(--accent),#c0392b);
+  border-radius:24px;font-size:14px;font-weight:700;color:#fff;
+  white-space:nowrap;transition:opacity .2s;flex-shrink:0
+}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ══ 视频页 ══ */
+.video-page{width:100%;height:100dvh;background:#000;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.video-grid{flex:1;display:grid;background:#111;gap:2px;overflow:hidden;min-height:0}
+.video-grid.g0,.video-grid.g1{grid-template-columns:1fr}
+.video-grid.g2{grid-template-columns:1fr 1fr}
+.video-grid.g3,.video-grid.g4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.video-grid.g5,.video-grid.g6{grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr}
+.video-grid.g7,.video-grid.g8,.video-grid.g9{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
+.remote-video-cell{position:relative;overflow:hidden;background:#111}
+.remote-video{width:100%;height:100%;object-fit:cover}
+.video-name-tag{
+  position:absolute;bottom:8px;left:8px;
+  background:rgba(0,0,0,.6);color:#fff;
+  padding:4px 10px;border-radius:20px;font-size:12px
+}
+.waiting-call{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;color:rgba(255,255,255,.4);font-size:16px;height:100%
+}
+.waiting-icon{font-size:64px;opacity:.4}
+.local-preview{
+  position:absolute;top:16px;right:16px;
+  width:100px;height:140px;border-radius:12px;overflow:hidden;
+  border:2px solid rgba(255,255,255,.3);box-shadow:0 4px 16px rgba(0,0,0,.6);z-index:5
+}
+.local-video{width:100%;height:100%;object-fit:cover}
+.local-video.cam-off{filter:brightness(.1)}
+.local-name{
+  position:absolute;bottom:4px;left:0;right:0;text-align:center;
+  font-size:9px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.5)
+}
+.call-controls{
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 24px;
+  background:linear-gradient(transparent,rgba(0,0,0,.9));
+  gap:8px;flex-shrink:0;
+  padding-bottom:calc(16px + var(--safe-bottom))
+}
+.call-timer{font-size:18px;color:#fff;font-variant-numeric:tabular-nums;font-weight:300;letter-spacing:2px}
+.ctrl-buttons{display:flex;gap:20px;align-items:center}
+.ctrl-btn{
+  width:56px;height:56px;border-radius:50%;font-size:24px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.15);transition:background .2s,transform .1s;
+  backdrop-filter:blur(4px)
+}
+.ctrl-btn:hover{background:rgba(255,255,255,.25)}
+.ctrl-btn:active{transform:scale(.92)}
+.ctrl-btn.muted{background:rgba(231,76,60,.4)}
+.ctrl-btn.end-call{width:68px;height:68px;background:var(--red);font-size:28px}
+.ctrl-btn.end-call:hover{background:#c0392b}
+.e2e-tag{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px}
+
+/* ══ 弹窗 ══ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);display:flex;
+  align-items:center;justify-content:center;z-index:100;padding:24px
+}
+.modal-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px 24px;max-width:340px;
+  width:100%;box-shadow:var(--shadow);text-align:center
+}
+.modal-icon{font-size:56px;margin-bottom:12px}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.file-sender{font-size:13px;color:var(--text-dim);margin-bottom:8px}
+.file-name{font-size:15px;font-weight:600;word-break:break-all;margin-bottom:4px}
+.file-size{font-size:12px;color:var(--text-dim);margin-bottom:14px}
+.modal-notice{
+  font-size:11px;color:var(--accent2);background:#f5a62315;
+  border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:20px;line-height:1.6
+}
+.modal-actions{display:flex;gap:12px;justify-content:center}
+.modal-btn{flex:1;padding:12px 16px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;transition:opacity .2s}
+.reject-btn{background:var(--bg-input);color:var(--text-dim);border:1px solid var(--border)}
+.reject-btn:hover{border-color:var(--red);color:var(--red)}
+.accept-btn{background:linear-gradient(135deg,var(--green),#27ae60);color:#fff}
+.accept-btn:hover{opacity:.9}
+.receiving-status{font-size:12px;color:var(--text-dim);margin-top:8px}
+
+/* ══ Toast提示 ══ */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.85);color:#fff;padding:10px 20px;
+  border-radius:24px;font-size:14px;z-index:200;pointer-events:none;
+  animation:fadeInOut 2.5s ease forwards
+}
+@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(10px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}75%{opacity:1}100%{opacity:0}}
+
+/* ══ 使用说明弹窗 ══ */
+.help-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.82);
+  backdrop-filter:blur(8px);display:flex;
+  align-items:center;justify-content:center;z-index:300;padding:16px;
+  animation:fadeIn .25s ease
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.help-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);width:100%;max-width:480px;
+  max-height:90dvh;display:flex;flex-direction:column;
+  box-shadow:0 16px 48px rgba(0,0,0,.7);overflow:hidden
+}
+.help-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border-bottom:1px solid var(--border);flex-shrink:0
+}
+.help-header-title{
+  font-size:18px;font-weight:800;
+  background:linear-gradient(135deg,#e94560,#f5a623);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text
+}
+.help-close{
+  width:32px;height:32px;border-radius:50%;background:var(--bg-input);
+  font-size:18px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);transition:background .2s
+}
+.help-close:hover{background:var(--bg-hover)}
+.help-body{overflow-y:auto;padding:20px;flex:1}
+.help-body::-webkit-scrollbar{width:4px}
+.help-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.help-section{margin-bottom:22px}
+.help-section:last-child{margin-bottom:0}
+.help-section-title{
+  display:flex;align-items:center;gap:8px;
+  font-size:14px;font-weight:700;color:var(--accent2);
+  margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)
+}
+.help-section-icon{font-size:18px}
+.help-steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.help-step{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:13px;line-height:1.6;color:var(--text)
+}
+.step-num{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),#c0392b);
+  color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:1px
+}
+.help-tip{
+  display:flex;gap:8px;align-items:flex-start;
+  background:var(--bg-input);border-radius:var(--radius-sm);
+  padding:10px 12px;font-size:12px;color:var(--text-dim);
+  line-height:1.6;border-left:3px solid var(--accent2)
+}
+.help-tip-icon{flex-shrink:0;font-size:15px;margin-top:1px}
+.help-table{width:100%;border-collapse:collapse;font-size:12px}
+.help-table th{
+  background:var(--bg-input);color:var(--text-dim);
+  padding:7px 10px;text-align:left;font-weight:600;letter-spacing:.5px
+}
+.help-table td{
+  padding:7px 10px;border-bottom:1px solid var(--border);
+  color:var(--text);line-height:1.5
+}
+.help-table tr:last-child td{border-bottom:none}
+.help-table td:first-child{color:var(--accent2);font-size:16px;text-align:center;width:36px}
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:10px;
+  font-size:10px;font-weight:700;
+  background:linear-gradient(135deg,#e9456030,#f5a62320);
+  color:var(--accent);border:1px solid #e9456060;margin-left:6px
+}
+.help-footer{
+  padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg-deep)
+}
+.help-footer-note{font-size:11px;color:var(--text-dim);line-height:1.5}
+.help-footer-note strong{color:var(--green)}
+.help-footer-btn{
+  padding:10px 20px;background:linear-gradient(135deg,var(--accent),#c0392b);
+  border-radius:var(--radius-sm);font-size:14px;font-weight:700;color:#fff;
+  flex-shrink:0;transition:opacity .2s
+}
+.help-footer-btn:hover{opacity:.85}
+/* 登录页帮助按钮 */
+.help-trigger-btn{
+  position:absolute;top:16px;right:16px;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid var(--border);
+  color:var(--text-dim);font-size:16px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,color .2s;cursor:pointer
+}
+.help-trigger-btn:hover{background:rgba(255,255,255,.15);color:var(--accent2)}
+
+/* ══ 响应式 ══ */
+@media(max-width:480px){
+  .login-card{padding:20px 16px}
+  .hero-title{font-size:28px}
+  .msg-bubble{font-size:14px}
+  .msg-bubble-wrap{max-width:80%}
+  .ctrl-btn{width:48px;height:48px;font-size:20px}
+  .ctrl-btn.end-call{width:60px;height:60px;font-size:24px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- Vue 3 CDN（锁定版本，避免意外升级） -->
+<script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+<!-- PeerJS CDN -->
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+//  工具函数
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * 将 Uint8Array 转为 Base64 字符串（避免 spread operator 栈溢出）
+ * 修复 Bug #1: btoa(String.fromCharCode(...largeArray)) 在大数组时抛 RangeError
+ */
+function uint8ArrayToBase64(bytes) {
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  return btoa(binary);
+}
+
+/**
+ * Base64 转 Uint8Array
+ */
+function base64ToUint8Array(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+/**
+ * 格式化文件大小
+ */
+function fmtSize(b) {
+  if (!b || b === 0) return '0 B';
+  if (b < 1024) return b + ' B';
+  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1024 / 1024).toFixed(2) + ' MB';
+}
+
+/**
+ * 根据 MIME 类型返回 emoji 图标
+ */
+function fileIcon(mime) {
+  if (!mime) return '📄';
+  if (mime.startsWith('image/')) return '🖼️';
+  if (mime.startsWith('video/')) return '🎬';
+  if (mime.startsWith('audio/')) return '🎵';
+  if (mime.includes('pdf')) return '📑';
+  if (mime.includes('zip') || mime.includes('rar') || mime.includes('7z')) return '🗜️';
+  if (mime.includes('word') || mime.includes('document')) return '📝';
+  if (mime.includes('excel') || mime.includes('spreadsheet')) return '📊';
+  return '📄';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  加密工具 CryptoUtils
+// ═══════════════════════════════════════════════════════════
+const CryptoUtils = {
+  /**
+   * 从 roomId + password 派生 AES-256-GCM 密钥
+   * 使用 PBKDF2(SHA-256, 100000 次迭代)
+   */
+  async deriveKey(roomId, password) {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveKey']
+    );
+    // 使用 roomId 作为 salt（固定长度 16 字节）
+    const saltStr = (roomId + '0000000000000000').slice(0, 16);
+    const salt = enc.encode(saltStr);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  },
+
+  /**
+   * 加密文本消息 → Base64 字符串
+   * 格式：[12字节IV][密文]
+   */
+  async encryptMessage(key, plaintext) {
+    const enc = new TextEncoder();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(plaintext));
+    const combined = new Uint8Array(12 + ct.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(ct), 12);
+    return uint8ArrayToBase64(combined); // 修复 Bug #1
+  },
+
+  /**
+   * 解密 Base64 字符串 → 文本
+   */
+  async decryptMessage(key, b64) {
+    const combined = base64ToUint8Array(b64);
+    const iv = combined.slice(0, 12);
+    const ct = combined.slice(12);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+    return new TextDecoder().decode(plain);
+  },
+
+  /**
+   * 加密二进制数据 → ArrayBuffer
+   */
+  async encryptBuffer(key, buffer) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, buffer);
+    const combined = new Uint8Array(12 + ct.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(ct), 12);
+    return combined.buffer;
+  },
+
+  /**
+   * 解密 ArrayBuffer → ArrayBuffer
+   */
+  async decryptBuffer(key, buffer) {
+    const data = new Uint8Array(buffer);
+    const iv = data.slice(0, 12);
+    const ct = data.slice(12);
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+  },
+
+  /**
+   * 生成随机 6 位大写房间号（使用密码学随机数，排除易混淆字符 O,I,0,1）
+   */
+  generateRoomId() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let result = '';
+    const arr = crypto.getRandomValues(new Uint8Array(6));
+    arr.forEach(b => { result += chars[b % chars.length]; });
+    return result;
+  },
+
+  /**
+   * 从 roomId + password 计算共享房间 Hash（8位hex）
+   * 用于生成固定的宿主 PeerID，实现自动发现
+   */
+  async hashRoom(roomId, password) {
+    const enc = new TextEncoder();
+    const data = enc.encode(roomId + '::' + password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash.slice(0, 4)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+//  P2P 核心类 FamilyRoom（v3: 自动宿主发现 + Mesh组网）
+// ═══════════════════════════════════════════════════════════
+class FamilyRoom {
+  constructor(options = {}) {
+    this.peer = null;
+    this.roomId = options.roomId || '';
+    this.roomHash = options.roomHash || '';  // 共享房间Hash
+    this.nickname = options.nickname || '家庭成员';
+    this.cryptoKey = options.cryptoKey || null;
+    this.isHost = false;                      // 是否为房间宿主
+    this.connections = new Map();             // peerId → DataConnection
+    this.mediaConnections = new Map();        // peerId → MediaConnection
+    this.localStream = null;
+    this.myPeerId = null;
+    this._fileBuffers = new Map();            // fileId → { meta, chunks[], received }
+    this._pendingSave = new Map();            // fileId → true（等待用户接受）
+    this._members = new Map();                // peerId → { nickname }（全量成员表）
+
+    // 回调
+    this.onMemberJoin = options.onMemberJoin || (() => {});
+    this.onMemberLeave = options.onMemberLeave || (() => {});
+    this.onMessage = options.onMessage || (() => {});
+    this.onFileIncoming = options.onFileIncoming || (() => {});
+    this.onFileComplete = options.onFileComplete || (() => {});
+    this.onRemoteStream = options.onRemoteStream || (() => {});
+    this.onRemoteStreamClose = options.onRemoteStreamClose || (() => {});
+    this.onError = options.onError || (() => {});
+    this.onReady = options.onReady || (() => {});
+    this.onStatus = options.onStatus || (() => {});   // 状态回调
+    this.onHostJoined = options.onHostJoined || (() => {}); // 宿主也加入在线列表
+  }
+
+  /**
+   * 初始化 PeerJS
+   * 策略：优先抢宿主ID（yjq-{roomHash}-host），若被占用则用随机ID并自动连接宿主
+   * 返回 Promise<{ peerId, isHost }>
+   */
+  init() {
+    return new Promise((resolve, reject) => {
+      const HOST_ID = `yjq-${this.roomHash}-host`;
+      const shortId = Math.random().toString(36).slice(2, 8);
+      const MEMBER_ID = `yjq-${this.roomHash}-${shortId}`;
+
+      let resolved = false;
+      let firstTry = true;
+
+      const doConnect = (useId) => {
+        this.myPeerId = useId;
+        this.peer = new Peer(useId, {
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun1.l.google.com:19302' },
+              { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+          },
+          debug: 0
+        });
+
+        const timeout = setTimeout(() => {
+          if (!resolved) { resolved = true; reject(new Error('信令服务器连接超时，请检查网络')); }
+        }, 25000);
+
+        this.peer.on('open', id => {
+          clearTimeout(timeout);
+          if (resolved) return;
+
+          if (firstTry && id === HOST_ID) {
+            // 抢到宿主ID → 成为宿主
+            this.isHost = true;
+            this._members.set(this.myPeerId, { nickname: this.nickname });
+            this.onStatus('已创建房间，等待家人加入…');
+            this.onHostJoined({ peerId: this.myPeerId, nickname: this.nickname });
+            resolved = true;
+            this.onReady(id);
+            resolve({ peerId: id, isHost: true });
+          } else {
+            // 使用随机ID → 普通成员，自动连接宿主
+            this.isHost = false;
+            this._members.set(this.myPeerId, { nickname: this.nickname });
+            this.onStatus('已加入房间，正在查找家人…');
+            resolved = true;
+            this.onReady(id);
+            resolve({ peerId: id, isHost: false });
+            // 延迟300ms后自动连接宿主（给PeerJS时间初始化）
+            setTimeout(() => this._autoConnectToHost(HOST_ID), 300);
+          }
+        });
+
+        // 接收其他节点发来的数据连接
+        this.peer.on('connection', conn => {
+          conn.on('open', () => {
+            this._setupDataConnection(conn);
+            this._sendJson(conn, {
+              type: 'join',
+              nickname: this.nickname,
+              peerId: this.myPeerId
+            }).catch(() => {});
+          });
+        });
+
+        // 接收视频通话
+        this.peer.on('call', call => this._handleIncomingCall(call));
+
+        this.peer.on('error', err => {
+          if (!resolved && firstTry) {
+            // 宿主ID被占用 → 切换到成员ID重试
+            firstTry = false;
+            clearTimeout(timeout);
+            try { this.peer.destroy(); } catch(e) {}
+            this.onStatus('房间已存在，以成员身份加入…');
+            doConnect(MEMBER_ID);
+            return;
+          }
+          clearTimeout(timeout);
+          if (!resolved) { resolved = true; this.onError(err); reject(err); }
+        });
+
+        this.peer.on('disconnected', () => {
+          if (this.peer && !this.peer.destroyed) {
+            setTimeout(() => { try { this.peer.reconnect(); } catch(e) {} }, 3000);
+          }
+        });
+      };
+
+      // 先尝试宿主角色的ID
+      doConnect(HOST_ID);
+    });
+  }
+
+  /**
+   * 自动连接宿主，并通过宿主获取全量成员列表 → 组建Mesh
+   */
+  _autoConnectToHost(hostId) {
+    if (hostId === this.myPeerId) return;
+    if (this.connections.has(hostId)) return;
+
+    this.onStatus('正在连接房间宿主…');
+    const conn = this.peer.connect(hostId, { reliable: true, serialization: 'binary' });
+    let opened = false;
+
+    const timeout = setTimeout(() => {
+      if (!opened) {
+        this.onStatus('⚠️ 无法连接宿主，房间可能为空或宿主离线');
+        // 如果宿主不可达，仍可接收别人的主动连接
+        this.onError(new Error('宿主无响应，等待其他成员连接…'));
+      }
+    }, 15000);
+
+    conn.on('open', () => {
+      opened = true;
+      clearTimeout(timeout);
+      this._setupDataConnection(conn);
+      // 发送 join，宿主会回复 member-list
+      this._sendJson(conn, {
+        type: 'join',
+        nickname: this.nickname,
+        peerId: this.myPeerId
+      }).catch(() => {});
+      this.onStatus('已连接到房间，同步成员列表…');
+    });
+
+    conn.on('error', () => {
+      clearTimeout(timeout);
+      this.connections.delete(hostId);
+    });
+  }
+
+  /**
+   * 主动连接目标节点（保留手动连接作为备用）
+   */
+  connectToPeer(targetPeerId) {
+    if (!targetPeerId || targetPeerId === this.myPeerId) return;
+    if (this.connections.has(targetPeerId)) return;
+    const conn = this.peer.connect(targetPeerId, {
+      reliable: true,
+      serialization: 'binary'
+    });
+    conn.on('open', () => {
+      this._setupDataConnection(conn);
+      this._sendJson(conn, {
+        type: 'join',
+        nickname: this.nickname,
+        peerId: this.myPeerId
+      }).catch(() => {});
+    });
+    conn.on('error', () => {
+      this.connections.delete(targetPeerId);
+    });
+  }
+
+  /**
+   * 宿主行为：当新成员加入时，发送全量成员列表，并通知所有现有成员连接新成员
+   */
+  async _hostOnNewMember(newPeerId, newNickname) {
+    // 1. 记录新成员
+    this._members.set(newPeerId, { nickname: newNickname });
+
+    // 2. 通知界面（新成员加入）
+    this.onMemberJoin({ peerId: newPeerId, nickname: newNickname });
+
+    // 3. 发送全量成员列表给新成员（排除新成员自己）
+    const memberList = [];
+    for (const [id, info] of this._members.entries()) {
+      if (id !== newPeerId) {
+        memberList.push({ peerId: id, nickname: info.nickname });
+      }
+    }
+
+    const conn = this.connections.get(newPeerId);
+    if (conn && conn.open) {
+      await this._sendJson(conn, {
+        type: 'member-list',
+        members: memberList,
+        hostPeerId: this.myPeerId
+      });
+    }
+
+    // 4. 通知所有现有成员去连接新成员（Mesh全互通）
+    for (const [existingId, existingConn] of this.connections.entries()) {
+      if (existingId !== newPeerId && existingConn.open) {
+        this._sendJson(existingConn, {
+          type: 'member-joined',
+          peerId: newPeerId,
+          nickname: newNickname
+        }).catch(() => {});
+      }
+    }
+  }
+
+  /**
+   * 设置数据连接的事件监听
+   */
+  _setupDataConnection(conn) {
+    this.connections.set(conn.peer, conn);
+    conn.on('data', data => this._handleData(conn.peer, data).catch(e => console.error('[P2P] 处理数据出错:', e)));
+    conn.on('close', () => {
+      this.connections.delete(conn.peer);
+      this._members.delete(conn.peer);
+      this.onMemberLeave(conn.peer);
+    });
+    conn.on('error', () => {
+      this.connections.delete(conn.peer);
+    });
+  }
+
+  /**
+   * 处理接收到的数据（v3: 新增 member-list、member-joined 消息类型）
+   */
+  async _handleData(fromPeerId, data) {
+    if (data instanceof ArrayBuffer) {
+      await this._handleFileChunk(fromPeerId, data);
+      return;
+    }
+    if (typeof data !== 'string') return;
+
+    let msg;
+    try {
+      if (this.cryptoKey) {
+        const plaintext = await CryptoUtils.decryptMessage(this.cryptoKey, data);
+        msg = JSON.parse(plaintext);
+      } else {
+        msg = JSON.parse(data);
+      }
+    } catch (e) {
+      return;
+    }
+
+    switch (msg.type) {
+      case 'join':
+        // 记录成员信息
+        if (this.connections.has(fromPeerId)) {
+          this.connections.get(fromPeerId)._nickname = msg.nickname;
+        }
+        this._members.set(fromPeerId, { nickname: msg.nickname });
+
+        if (this.isHost) {
+          // 宿主：发送 member-list + 广播 member-joined
+          this._hostOnNewMember(fromPeerId, msg.nickname);
+        } else {
+          // 普通成员：直接通知界面
+          this.onMemberJoin({ peerId: fromPeerId, nickname: msg.nickname });
+        }
+        break;
+
+      case 'member-list': {
+        // 宿主发来的全量成员列表 → 连接所有人
+        this.onStatus(`发现 ${msg.members.length + 1} 位家人，正在建立连接…`);
+        const newMembers = [];
+
+        for (const m of msg.members) {
+          if (m.peerId !== this.myPeerId && !this.connections.has(m.peerId)) {
+            this._members.set(m.peerId, { nickname: m.nickname });
+            newMembers.push(m);
+          }
+        }
+
+        // 逐个连接所有现有成员（延迟避免同时建立过多连接）
+        let connected = 0;
+        for (const m of newMembers) {
+          this.connectToPeer(m.peerId);
+          connected++;
+          if (connected % 3 === 0) {
+            await new Promise(r => setTimeout(r, 200));
+          }
+        }
+
+        if (newMembers.length === 0) {
+          this.onStatus('已就绪（暂无其他家人在线）');
+        } else {
+          // 短暂延迟后更新状态
+          setTimeout(() => {
+            this.onStatus(`✅ 已与 ${this.connections.size} 位家人建立直连`);
+          }, 1500);
+        }
+        break;
+      }
+
+      case 'member-joined': {
+        // 宿主通知：有新成员加入 → 主动连接该新成员
+        if (msg.peerId !== this.myPeerId && !this.connections.has(msg.peerId)) {
+          this._members.set(msg.peerId, { nickname: msg.nickname });
+          this.onMemberJoin({ peerId: msg.peerId, nickname: msg.nickname });
+          this.connectToPeer(msg.peerId);
+        }
+        break;
+      }
+
+      case 'chat':
+        this.onMessage({ fromPeerId, nickname: msg.nickname, text: msg.text, time: msg.time });
+        break;
+
+      case 'file-meta': {
+        const fileId = Number(msg.fileId);
+        this._fileBuffers.set(fileId, { meta: { ...msg, fileId }, chunks: [], received: 0 });
+        this.onFileIncoming({ meta: { ...msg, fileId }, fromPeerId });
+        break;
+      }
+
+      case 'leave':
+        this.connections.delete(fromPeerId);
+        this._members.delete(fromPeerId);
+        this.onMemberLeave(fromPeerId);
+        break;
+    }
+  }
+
+  /**
+   * 处理文件分片
+   * 修复 Bug #2: fileId 统一为 Number
+   */
+  async _handleFileChunk(fromPeerId, buffer) {
+    if (buffer.byteLength < 5) return;
+    const view = new DataView(buffer);
+    const fileId = view.getUint32(0);  // Number 类型
+    const isLast = view.getUint8(4) === 1;
+    const chunk = buffer.slice(5);
+
+    const entry = this._fileBuffers.get(fileId);
+    if (!entry) return;
+
+    entry.chunks.push(chunk);
+    entry.received += chunk.byteLength;
+
+    if (isLast) {
+      // 合并所有分片
+      const total = entry.chunks.reduce((s, c) => s + c.byteLength, 0);
+      const merged = new Uint8Array(total);
+      let offset = 0;
+      for (const c of entry.chunks) {
+        merged.set(new Uint8Array(c), offset);
+        offset += c.byteLength;
+      }
+
+      let finalBuffer = merged.buffer;
+      if (this.cryptoKey) {
+        try {
+          finalBuffer = await CryptoUtils.decryptBuffer(this.cryptoKey, finalBuffer);
+        } catch (e) {
+          console.error('[P2P] 文件解密失败:', e);
+          this._fileBuffers.delete(fileId);
+          return;
+        }
+      }
+
+      this._fileBuffers.delete(fileId);
+      this.onFileComplete({ fileId, buffer: finalBuffer, meta: entry.meta, fromPeerId });
+    }
+  }
+
+  /**
+   * 发送加密 JSON 消息
+   */
+  async _sendJson(conn, obj) {
+    if (!conn || !conn.open) return;
+    const text = JSON.stringify(obj);
+    if (this.cryptoKey) {
+      conn.send(await CryptoUtils.encryptMessage(this.cryptoKey, text));
+    } else {
+      conn.send(text);
+    }
+  }
+
+  /**
+   * 向所有在线成员广播聊天消息
+   */
+  async broadcastMessage(text) {
+    const msg = {
+      type: 'chat',
+      nickname: this.nickname,
+      text,
+      time: Date.now()
+    };
+    const promises = [];
+    for (const conn of this.connections.values()) {
+      if (conn.open) promises.push(this._sendJson(conn, msg));
+    }
+    await Promise.allSettled(promises);
+    return msg;
+  }
+
+  /**
+   * 发送文件（分片加密传输）
+   * @param {string} targetPeerId 目标节点
+   * @param {File} file 文件对象
+   * @param {Function} onProgress 进度回调 (0-100)
+   */
+  async sendFile(targetPeerId, file, onProgress) {
+    const conn = this.connections.get(targetPeerId);
+    if (!conn || !conn.open) throw new Error('对方未在线，无法发送文件');
+
+    // fileId 使用 32 位无符号整数（与 getUint32 一致）
+    const fileId = (Date.now() >>> 0); // 修复 Bug #2：确保为 Number
+
+    // 先发送文件元数据
+    await this._sendJson(conn, {
+      type: 'file-meta',
+      fileId: String(fileId),  // JSON 传输时转 string，接收时再转 number
+      name: file.name,
+      size: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      sender: this.nickname
+    });
+
+    // 读取并加密文件数据
+    let data = await file.arrayBuffer();
+    if (this.cryptoKey) {
+      data = await CryptoUtils.encryptBuffer(this.cryptoKey, data);
+    }
+
+    // 分片发送（16KB/片）
+    const CHUNK_SIZE = 16 * 1024;
+    const totalChunks = Math.ceil(data.byteLength / CHUNK_SIZE);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, data.byteLength);
+      const chunk = data.slice(start, end);
+      const isLast = i === totalChunks - 1;
+
+      // 构建数据包：[4字节fileId][1字节isLast][数据]
+      const pkt = new ArrayBuffer(5 + (end - start));
+      const v = new DataView(pkt);
+      v.setUint32(0, fileId);
+      v.setUint8(4, isLast ? 1 : 0);
+      new Uint8Array(pkt).set(new Uint8Array(chunk), 5);
+      conn.send(pkt);
+
+      if (onProgress) onProgress(Math.round(((i + 1) / totalChunks) * 100));
+      // 每 10 片让出一帧，避免阻塞 UI
+      if (i % 10 === 9) await new Promise(r => setTimeout(r, 0));
+    }
+  }
+
+  /**
+   * 发起视频通话（向所有在线成员）
+   */
+  async startVideoCall(localStream) {
+    this.localStream = localStream;
+    for (const [peerId, conn] of this.connections.entries()) {
+      if (conn.open) {
+        try {
+          const call = this.peer.call(peerId, localStream);
+          this._setupOutgoingCall(call);
+        } catch (e) {
+          console.warn('[P2P] 呼叫失败:', peerId, e);
+        }
+      }
+    }
+  }
+
+  /**
+   * 处理接入的视频通话
+   */
+  _handleIncomingCall(call) {
+    const doAnswer = (stream) => {
+      call.answer(stream || undefined);
+      call.on('stream', remoteStream => {
+        this.mediaConnections.set(call.peer, call);
+        this.onRemoteStream({ peerId: call.peer, stream: remoteStream });
+      });
+      call.on('close', () => {
+        this.mediaConnections.delete(call.peer);
+        this.onRemoteStreamClose(call.peer);
+      });
+      call.on('error', () => {
+        this.mediaConnections.delete(call.peer);
+        this.onRemoteStreamClose(call.peer);
+      });
+    };
+
+    if (this.localStream) {
+      doAnswer(this.localStream);
+    } else {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(s => { this.localStream = s; doAnswer(s); })
+        .catch(() => doAnswer(null));
+    }
+  }
+
+  /**
+   * 设置外呼的视频连接事件
+   */
+  _setupOutgoingCall(call) {
+    call.on('stream', remoteStream => {
+      this.mediaConnections.set(call.peer, call);
+      this.onRemoteStream({ peerId: call.peer, stream: remoteStream });
+    });
+    call.on('close', () => {
+      this.mediaConnections.delete(call.peer);
+      this.onRemoteStreamClose(call.peer);
+    });
+    call.on('error', () => {
+      this.mediaConnections.delete(call.peer);
+      this.onRemoteStreamClose(call.peer);
+    });
+  }
+
+  /**
+   * 停止视频通话
+   */
+  stopVideoCall() {
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(t => t.stop());
+      this.localStream = null;
+    }
+    this.mediaConnections.forEach(c => { try { c.close(); } catch(e) {} });
+    this.mediaConnections.clear();
+  }
+
+  /**
+   * 离开房间，通知所有成员并释放资源
+   */
+  async leave() {
+    const leaveMsg = { type: 'leave', nickname: this.nickname };
+    const promises = [];
+    for (const conn of this.connections.values()) {
+      if (conn.open) promises.push(this._sendJson(conn, leaveMsg));
+    }
+    // 等待 leave 消息发出后再关闭
+    await Promise.allSettled(promises);
+    await new Promise(r => setTimeout(r, 200)); // 给网络一点时间
+
+    this.stopVideoCall();
+    this.connections.forEach(c => { try { c.close(); } catch(e) {} });
+    this.connections.clear();
+    this._fileBuffers.clear();
+
+    if (this.peer) {
+      try { this.peer.destroy(); } catch(e) {}
+      this.peer = null;
+    }
+  }
+
+  /**
+   * 获取成员列表（不含自己）
+   */
+  getMembers() {
+    const list = [];
+    this.connections.forEach((conn, peerId) => {
+      list.push({
+        peerId,
+        nickname: conn._nickname || '连接中…',
+        online: conn.open
+      });
+    });
+    return list;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Vue 3 App
+// ═══════════════════════════════════════════════════════════
+const {
+  createApp, ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch
+} = Vue;
+
+// ══ 文件接收弹窗组件 ══
+const FileNotifyModal = {
+  props: {
+    meta: { type: Object, default: null },
+    isReceiving: { type: Boolean, default: true }
+  },
+  emits: ['accept', 'reject'],
+  setup(props, { emit }) {
+    return {
+      fmtSize,
+      fileIcon,
+      reject: () => emit('reject'),
+      accept: () => emit('accept')
+    };
+  },
+  template: `
+    <div class="modal-overlay" @click.self="reject">
+      <div class="modal-card">
+        <div class="modal-icon">{{ fileIcon(meta?.mimeType) }}</div>
+        <div class="modal-title">收到文件</div>
+        <div class="file-sender">来自：<strong>{{ meta?.sender || '家庭成员' }}</strong></div>
+        <div class="file-name">{{ meta?.name || '未知文件' }}</div>
+        <div class="file-size">{{ fmtSize(meta?.size) }}</div>
+        <div class="modal-notice">⚡ 文件仅在内存中，拒绝后立即销毁，绝不写入磁盘</div>
+        <div v-if="isReceiving" class="receiving-status">
+          <span class="spinner" style="display:inline-block;margin-right:6px"></span>接收中…
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn reject-btn" @click="reject">❌ 拒绝</button>
+          <button class="modal-btn accept-btn" @click="accept">✅ 同意并保存</button>
+        </div>
+      </div>
+    </div>`
+};
+
+// ══ 视频通话页组件 ══
+const VideoView = {
+  props: {
+    localStream: { type: Object, default: null },
+    remoteStreams: { type: Object, default: () => ({}) },
+    members: { type: Array, default: () => [] },
+    nickname: { type: String, default: '' }
+  },
+  emits: ['end-call'],
+  setup(props, { emit }) {
+    const localVideoRef = ref(null);
+    const micMuted = ref(false);
+    const camOff = ref(false);
+    const callDuration = ref(0);
+    let timer = null;
+
+    // 挂载时绑定本地视频流
+    onMounted(() => {
+      if (localVideoRef.value && props.localStream) {
+        localVideoRef.value.srcObject = props.localStream;
+      }
+      timer = setInterval(() => callDuration.value++, 1000);
+    });
+
+    onBeforeUnmount(() => {
+      if (timer) clearInterval(timer);
+    });
+
+    // 监听 localStream 变化
+    watch(() => props.localStream, stream => {
+      if (localVideoRef.value && stream) {
+        localVideoRef.value.srcObject = stream;
+      }
+    });
+
+    /**
+     * 修复 Bug #3: 使用 vnode 回调绑定远程流
+     * el 是 DOM 元素，stream 是 MediaStream
+     */
+    function bindVideo(el, stream) {
+      if (!el || !stream) return;
+      if (el.srcObject !== stream) {
+        el.srcObject = stream;
+        el.play().catch(() => {});
+      }
+    }
+
+    function toggleMic() {
+      if (!props.localStream) return;
+      const tracks = props.localStream.getAudioTracks();
+      tracks.forEach(t => { t.enabled = !t.enabled; });
+      micMuted.value = !micMuted.value;
+    }
+
+    function toggleCam() {
+      if (!props.localStream) return;
+      const tracks = props.localStream.getVideoTracks();
+      tracks.forEach(t => { t.enabled = !t.enabled; });
+      camOff.value = !camOff.value;
+    }
+
+    function fmtDur(s) {
+      const m = Math.floor(s / 60);
+      const sec = s % 60;
+      return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    // 修复 Bug #8: 使用 computed 确保响应式
+    const remoteEntries = computed(() => Object.entries(props.remoteStreams || {}));
+    const gridClass = computed(() => `g${Math.min(remoteEntries.value.length, 9)}`);
+
+    function getMemberName(peerId) {
+      const m = props.members?.find(x => x.peerId === peerId);
+      return m?.nickname || ('…' + peerId.slice(-4));
+    }
+
+    return {
+      localVideoRef, micMuted, camOff, callDuration,
+      bindVideo, toggleMic, toggleCam, fmtDur,
+      remoteEntries, gridClass, getMemberName
+    };
+  },
+  template: `
+    <div class="video-page">
+      <div :class="['video-grid', gridClass]">
+        <div v-if="remoteEntries.length === 0" class="waiting-call">
+          <div class="waiting-icon">📹</div>
+          <div>等待家人接听…</div>
+          <div style="font-size:12px;opacity:.6;margin-top:4px">请让家人也点击📹视频按钮</div>
+        </div>
+        <div
+          v-for="[peerId, stream] in remoteEntries"
+          :key="peerId"
+          class="remote-video-cell"
+        >
+          <video
+            autoplay
+            playsinline
+            :ref="el => bindVideo(el, stream)"
+            class="remote-video"
+          ></video>
+          <div class="video-name-tag">{{ getMemberName(peerId) }}</div>
+        </div>
+      </div>
+
+      <div class="local-preview">
+        <video ref="localVideoRef" autoplay playsinline muted
+          :class="['local-video', { 'cam-off': camOff }]"></video>
+        <div class="local-name">{{ nickname }}（我）</div>
+      </div>
+
+      <div class="call-controls">
+        <div class="call-timer">{{ fmtDur(callDuration) }}</div>
+        <div class="ctrl-buttons">
+          <button :class="['ctrl-btn', micMuted && 'muted']" @click="toggleMic">
+            {{ micMuted ? '🔇' : '🎙️' }}
+          </button>
+          <button class="ctrl-btn end-call" @click="$emit('end-call')">📵</button>
+          <button :class="['ctrl-btn', camOff && 'muted']" @click="toggleCam">
+            {{ camOff ? '📷' : '📸' }}
+          </button>
+        </div>
+        <div class="e2e-tag">🔐 端对端加密通话</div>
+      </div>
+    </div>`
+};
+
+// ══ 聊天页组件 ══
+const ChatView = {
+  props: {
+    myPeerId: { type: String, default: '' },
+    roomId: { type: String, default: '' },
+    nickname: { type: String, default: '' },
+    members: { type: Array, default: () => [] },
+    messages: { type: Array, default: () => [] },
+    sendingFiles: { type: Object, default: () => ({}) }
+  },
+  emits: ['send-message', 'connect-member', 'start-call', 'send-file', 'leave', 'copy-toast'],
+  setup(props, { emit }) {
+    const inputText = ref('');
+    const connectInput = ref('');
+    const showConnectPanel = ref(false);
+    const showMemberPanel = ref(false);
+    const msgListRef = ref(null);
+
+    // 发送消息
+    function sendMsg() {
+      const text = inputText.value.trim();
+      if (!text) return;
+      emit('send-message', text);
+      inputText.value = '';
+      nextTick(() => {
+        if (msgListRef.value) {
+          msgListRef.value.scrollTop = msgListRef.value.scrollHeight;
+        }
+      });
+    }
+
+    // 连接成员
+    function connectPeer() {
+      const id = connectInput.value.trim();
+      if (!id) return;
+      emit('connect-member', id);
+      connectInput.value = '';
+      showConnectPanel.value = false;
+    }
+
+    // 选择文件发送
+    function pickFile(targetPeerId) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '*/*';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        emit('send-file', targetPeerId, file);
+      };
+      input.click();
+    }
+
+    // 复制节点ID
+    function copyId() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(props.myPeerId).then(() => {
+          emit('copy-toast', '节点ID已复制 ✓');
+        });
+      } else {
+        // 降级处理
+        const ta = document.createElement('textarea');
+        ta.value = props.myPeerId;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        emit('copy-toast', '节点ID已复制 ✓');
+      }
+    }
+
+    // 复制房间号
+    function copyRoomId() {
+      const text = props.roomId;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          emit('copy-toast', '房间号已复制 ✓');
+        });
+      }
+    }
+
+    function fmtTime(ts) {
+      return new Date(ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // 监听消息变化，自动滚到底部
+    watch(() => props.messages.length, () => {
+      nextTick(() => {
+        if (msgListRef.value) {
+          msgListRef.value.scrollTop = msgListRef.value.scrollHeight;
+        }
+      });
+    });
+
+    return {
+      inputText, connectInput, showConnectPanel, showMemberPanel,
+      msgListRef, sendMsg, connectPeer, pickFile, copyId, copyRoomId, fmtTime
+    };
+  },
+  template: `
+    <div class="chat-page">
+      <div class="chat-header">
+        <div class="header-left">
+          <button class="icon-btn" @click="showMemberPanel = !showMemberPanel" title="家庭成员">👨‍👩‍👧‍👦</button>
+          <div>
+            <div class="room-title" @click="copyRoomId" title="点击复制房间号">🏠 {{ roomId }}</div>
+            <div class="room-sub">{{ members.length }} 位家人在线</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="icon-btn green" @click="$emit('start-call')" title="发起视频通话">📹</button>
+          <button class="icon-btn" @click="showConnectPanel = !showConnectPanel" title="手动连接">🔗</button>
+          <button class="icon-btn red" @click="$emit('leave')" title="离开房间">🚪</button>
+        </div>
+      </div>
+
+      <!-- 成员面板 -->
+      <transition name="fade">
+        <div v-if="showMemberPanel" class="side-panel">
+          <div class="panel-title">👨‍👩‍👧‍👦 家庭成员（共 {{ members.length + 1 }} 人）</div>
+
+          <!-- 自己 -->
+          <div class="member-item self-member">
+            <span class="member-dot online"></span>
+            <span class="member-name">{{ nickname }}（我）</span>
+            <span style="font-size:10px;color:var(--green);margin-left:4px">在线</span>
+          </div>
+
+          <!-- 其他人 -->
+          <div v-for="m in members" :key="m.peerId" class="member-item">
+            <span :class="['member-dot', m.online ? 'online' : 'offline']"></span>
+            <span class="member-name">{{ m.nickname }}</span>
+            <button
+              v-if="!m.isMe"
+              class="mini-btn"
+              @click="pickFile(m.peerId)"
+              title="发送文件给 {{ m.nickname }}">📎 发文件</button>
+            <div v-if="sendingFiles[m.peerId] !== undefined" class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" :style="{ width: sendingFiles[m.peerId] + '%' }"></div>
+                <span class="progress-text">{{ sendingFiles[m.peerId] }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 空状态提示 -->
+          <div v-if="members.length === 0" class="empty-tip">
+            <div style="font-size:32px;margin-bottom:8px">📡</div>
+            <div><strong>自动发现已开启</strong></div>
+            <div>当家人用相同房间号和密码加入时</div>
+            <div>会自动与你建立连接，无需手动操作</div>
+          </div>
+
+          <!-- 手动连接（备用） -->
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="panel-desc" style="font-size:10px;color:var(--text-dim)">
+              ⚠️ 通常无需手动操作。仅当自动发现不生效时，可让家人复制节点ID手动粘贴连接。
+            </div>
+            <div class="my-id-box" style="margin-top:8px">
+              <div class="my-id-label">我的节点ID（点击复制）：</div>
+              <div class="my-id-value" @click="copyId">{{ myPeerId }}</div>
+              <div class="copy-hint">点击复制后发给家人，家人在「🔗手动连接」面板粘贴</div>
+            </div>
+          </div>
+
+          <button class="close-btn" @click="showMemberPanel = false">关闭</button>
+        </div>
+      </transition>
+
+      <!-- 手动连接面板（备用） -->
+      <transition name="fade">
+        <div v-if="showConnectPanel" class="side-panel">
+          <div class="panel-title">🔗 手动连接（备用）</div>
+          <p class="panel-desc">自动发现通常能建立连接。若未生效，请让家人从成员面板复制节点ID，粘贴到下方：</p>
+          <div class="field-row">
+            <input
+              v-model="connectInput"
+              class="field-input"
+              placeholder="粘贴节点ID（yjq-...）"
+              @keyup.enter="connectPeer"
+            />
+            <button class="login-btn small" @click="connectPeer">连接</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:10px;line-height:1.5">
+            💡 <strong>正常情况下无需手动连接</strong>，加入同一房间的家人会自动互连。如果您和家人的设备在不同网络（如一个4G一个WiFi），可尝试此方法作为备用。
+          </div>
+          <button class="close-btn" @click="showConnectPanel = false">关闭</button>
+        </div>
+      </transition>
+
+      <!-- 消息列表 -->
+      <div class="msg-list" ref="msgListRef">
+        <div v-if="messages.length === 0" class="empty-chat">
+          <div class="empty-icon">💬</div>
+          <div>房间已就绪，等待家人加入…</div>
+          <div class="empty-sub">
+            家人使用相同的<strong>房间号+密码</strong>加入后<br/>
+            会自动互连，无需手动操作 ✨
+          </div>
+        </div>
+        <template v-for="msg in messages" :key="msg.id">
+          <div v-if="msg.type === 'system'" class="system-msg">
+            <span class="system-text">{{ msg.text }}</span>
+          </div>
+          <div v-else :class="msg.self ? 'self-msg' : 'other-msg'">
+            <div class="msg-bubble-wrap">
+              <div v-if="!msg.self" class="msg-sender">{{ msg.nickname }}</div>
+              <div class="msg-bubble">{{ msg.text }}</div>
+              <div class="msg-time">{{ fmtTime(msg.time) }}</div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- 输入栏 -->
+      <div class="input-bar">
+        <input
+          v-model="inputText"
+          class="msg-input"
+          placeholder="说点什么…（加密传输）"
+          @keyup.enter="sendMsg"
+          maxlength="500"
+        />
+        <button class="send-btn" @click="sendMsg" :disabled="!inputText.trim()">发送</button>
+      </div>
+    </div>`
+};
+
+// ══ 登录页组件 ══
+const LoginView = {
+  props: {
+    error: { type: String, default: '' },
+    loading: { type: Boolean, default: false },
+    status: { type: String, default: '' }
+  },
+  emits: ['login', 'show-help'],
+  setup(props, { emit }) {
+    const roomId = ref('');
+    const password = ref('');
+    const nickname = ref('');
+    const showPwd = ref(false);
+    const mode = ref('join');
+
+    function autoGen() {
+      roomId.value = CryptoUtils.generateRoomId();
+    }
+
+    function submit() {
+      const roomIdVal = roomId.value.trim().toUpperCase();
+      const passwordVal = password.value;
+      const nicknameVal = nickname.value.trim();
+      emit('login', { roomIdVal, passwordVal, nicknameVal });
+    }
+
+    // 切换到创建模式时自动生成房间号
+    watch(mode, v => {
+      if (v === 'create' && !roomId.value) autoGen();
+    });
+
+    return { roomId, password, nickname, showPwd, mode, autoGen, submit };
+  },
+  template: `
+    <div class="login-page" style="position:relative">
+      <!-- 帮助按钮 -->
+      <button class="help-trigger-btn" @click="$emit('show-help')" title="使用说明">?</button>
+      <div class="login-hero">
+        <div class="hero-icon">🏠</div>
+        <h1 class="hero-title">一家亲</h1>
+        <p class="hero-sub">无服务器 · 纯P2P · 端对端加密 · 完全私密</p>
+      </div>
+      <div class="login-card">
+        <div class="tab-row">
+          <button :class="['tab-btn', mode === 'join' && 'active']" @click="mode = 'join'">加入房间</button>
+          <button :class="['tab-btn', mode === 'create' && 'active']" @click="mode = 'create'">创建房间</button>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">家庭房间号</label>
+          <div class="field-row">
+            <input
+              v-model="roomId"
+              class="field-input"
+              :placeholder="mode === 'create' ? '已自动生成（可修改）' : '输入家人分享的房间号'"
+              maxlength="10"
+              autocomplete="off"
+              style="text-transform:uppercase;letter-spacing:3px;font-weight:700"
+              @keyup.enter="submit"
+            />
+            <button v-if="mode === 'create'" class="gen-btn" @click="autoGen" title="重新生成">🔄</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">房间密码</label>
+          <div class="field-row">
+            <input
+              v-model="password"
+              class="field-input"
+              :type="showPwd ? 'text' : 'password'"
+              placeholder="家庭成员共享同一密码"
+              autocomplete="off"
+              @keyup.enter="submit"
+            />
+            <button class="gen-btn" @click="showPwd = !showPwd" :title="showPwd ? '隐藏密码' : '显示密码'">
+              {{ showPwd ? '👁️' : '🔒' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">我的昵称</label>
+          <input
+            v-model="nickname"
+            class="field-input"
+            placeholder="如：爸爸、妈妈、宝贝"
+            maxlength="12"
+            @keyup.enter="submit"
+          />
+        </div>
+
+        <div v-if="error" class="error-banner">⚠️ {{ error }}</div>
+        <div v-if="loading" class="status-banner">
+          <span class="spinner"></span>{{ status || '连接中…' }}
+        </div>
+
+        <button class="login-btn" :disabled="loading" @click="submit">
+          <span v-if="loading">连接中…</span>
+          <span v-else>{{ mode === 'create' ? '🏠 创建并进入' : '🚪 加入家庭' }}</span>
+        </button>
+
+        <div class="privacy-note">
+          <span>🔐</span>
+          <span>密码通过 PBKDF2(100k次) 本地派生密钥，消息文件全程 AES-256-GCM 加密，无账号无服务器，关闭即销毁</span>
+        </div>
+      </div>
+    </div>`
+};
+
+// ══ 使用说明弹窗 ══
+const HelpModal = {
+  emits: ['close'],
+  template: `
+    <div class="help-overlay" @click.self="$emit('close')">
+      <div class="help-card">
+
+        <!-- 标题栏 -->
+        <div class="help-header">
+          <span class="help-header-title">📖 一家亲 · 使用说明</span>
+          <button class="help-close" @click="$emit('close')">✕</button>
+        </div>
+
+        <!-- 正文 -->
+        <div class="help-body">
+
+          <!-- ① 简介 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">🏠</span>什么是一家亲？
+            </div>
+            <div class="help-tip">
+              <span class="help-tip-icon">💡</span>
+              <span>一款<strong>完全无服务器</strong>的家庭私密通讯应用。所有消息、文件、通话均直接在家人设备间传输，不经过任何服务器，关闭即销毁，零隐私泄露风险。</span>
+            </div>
+          </div>
+
+          <!-- ② 快速开始 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">🚀</span>快速开始（三步入门）
+            </div>
+            <ol class="help-steps">
+              <li class="help-step">
+                <span class="step-num">1</span>
+                <span><strong>建立家庭房间</strong>：由家庭中一位成员点击「创建房间」，系统自动生成<strong>房间号</strong>，并设定一个全家人共享的<strong>房间密码</strong>（至少4位，请牢记）。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">2</span>
+                <span><strong>分享给家人</strong>：将<strong>房间号</strong>和<strong>密码</strong>告诉家人（微信/短信均可）。其他成员选择「加入房间」，输入相同的房间号、密码和自己的昵称。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">3</span>
+                <span><strong>开始通讯</strong>：进入聊天室后可直接发消息；点击顶栏📹视频图标可发起视频通话；点击📎可向指定家人发送阅后即焚文件。</span>
+              </li>
+            </ol>
+          </div>
+
+          <!-- ③ 功能详解 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">✨</span>核心功能说明
+            </div>
+            <table class="help-table">
+              <thead><tr><th></th><th>功能</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr><td>💬</td><td>加密聊天</td><td>消息经 AES-256-GCM 加密，仅房间成员可读，关闭App即清空</td></tr>
+                <tr><td>📹</td><td>视频通话</td><td>支持最多10人同时视频，Mesh全连接，无中转服务器</td></tr>
+                <tr><td>🎤</td><td>静音/开麦</td><td>通话中点击麦克风图标切换，摄像头图标开关摄像头</td></tr>
+                <tr><td>📎</td><td>阅后即焚文件</td><td>接收方未同意前文件仅存内存，拒绝或关闭立即销毁</td></tr>
+                <tr><td>👥</td><td>成员列表</td><td>点击左上角👥查看在线家人，可复制对方节点ID手动连接</td></tr>
+                <tr><td>🔗</td><td>手动连接</td><td>网络较差时可粘贴对方节点ID，点击「连接」建立直连</td></tr>
+                <tr><td>🚪</td><td>退出房间</td><td>点击顶栏右上角🚪退出，消息记录自动清空</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ④ 文件传输 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">📁</span>文件发送流程
+            </div>
+            <ol class="help-steps">
+              <li class="help-step">
+                <span class="step-num">1</span>
+                <span>在聊天页点击输入框旁的 <strong>📎 图标</strong>，选择要发送的文件（照片/视频/文档均可）。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">2</span>
+                <span>接收方设备弹出提示框，显示文件名和大小，等待对方选择。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">3</span>
+                <span>若接收方点击<strong>「同意并保存」</strong>，系统弹出系统保存对话框，文件才落地到本地磁盘。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">4</span>
+                <span>若接收方点击<strong>「拒绝」</strong>或直接关闭App，文件数据从内存中立即销毁，彻底消失。</span>
+              </li>
+            </ol>
+            <div class="help-tip" style="margin-top:10px">
+              <span class="help-tip-icon">🔒</span>
+              <span>文件传输全程加密，且在接收方同意保存前<strong>从不写入磁盘</strong>，完全内存级操作。</span>
+            </div>
+          </div>
+
+          <!-- ⑤ 平台支持 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">📱</span>支持的平台
+            </div>
+            <table class="help-table">
+              <thead><tr><th></th><th>平台</th><th>使用方式</th></tr></thead>
+              <tbody>
+                <tr><td>🪟</td><td>Windows</td><td>双击 <code style="color:var(--accent2);font-size:11px">一家亲App.html</code> 直接用浏览器打开即可</td></tr>
+                <tr><td>🍎</td><td>iPhone / iPad</td><td>Safari 打开 → 分享 → 添加到主屏幕 → 像原生App一样使用</td></tr>
+                <tr><td>🤖</td><td>Android</td><td>Chrome 打开 → 菜单 → 添加到主屏幕 或 直接使用浏览器</td></tr>
+                <tr><td>🌐</td><td>鸿蒙 HarmonyOS</td><td>浏览器打开 → 添加到桌面，或使用兼容的Android版本</td></tr>
+                <tr><td>🍏</td><td>macOS</td><td>Safari / Chrome 直接打开网页版即可</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ⑥ 常见问题 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">❓</span>常见问题
+            </div>
+            <ol class="help-steps">
+              <li class="help-step">
+                <span class="step-num">Q</span>
+                <span><strong>家人连不上怎么办？</strong><br>
+                  确认大家输入了相同的房间号和密码 → 打开成员面板，互相复制「我的节点ID」 → 粘贴到输入框手动点击「连接」。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">Q</span>
+                <span><strong>视频画质很模糊？</strong><br>
+                  程序会根据网络自动调整分辨率。若网络较差（移动4G等），画质会自动降低以保证流畅。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">Q</span>
+                <span><strong>消息会被保存吗？</strong><br>
+                  不会。所有聊天记录、视频流、文件数据均只在内存中，关闭App或刷新页面后立即消失，无任何痕迹。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">Q</span>
+                <span><strong>需要联网吗？</strong><br>
+                  首次连接需要借助公共信令服务器交换IP（仅用于"找到彼此"，不传任何内容）。同一WiFi局域网内可完全离线使用。</span>
+              </li>
+              <li class="help-step">
+                <span class="step-num">Q</span>
+                <span><strong>最多支持多少人？</strong><br>
+                  最多 <strong>10人</strong>同时在线，适合家庭日常使用。</span>
+              </li>
+            </ol>
+          </div>
+
+          <!-- ⑦ 安全提示 -->
+          <div class="help-section">
+            <div class="help-section-title">
+              <span class="help-section-icon">🛡️</span>安全与隐私说明
+            </div>
+            <div class="help-tip">
+              <span class="help-tip-icon">🔐</span>
+              <span>
+                <strong>无账号 · 无服务器 · 无日志</strong><br>
+                密码通过 PBKDF2（10万次迭代）本地派生加密密钥，消息和文件均使用 AES-256-GCM 端对端加密。
+                公共信令服务器仅用于建立连接（交换IP），<strong>绝不经过任何业务数据</strong>。
+                您的隐私100%由您自己掌控。
+              </span>
+            </div>
+          </div>
+
+        </div><!-- /help-body -->
+
+        <!-- 底部 -->
+        <div class="help-footer">
+          <div class="help-footer-note">
+            <strong>✅ 完全开源免费</strong><br>
+            github.com/deyou0217/yi-jia-qin
+          </div>
+          <button class="help-footer-btn" @click="$emit('close')">知道了</button>
+        </div>
+
+      </div>
+    </div>
+  `
+};
+
+// ══ 根组件 App ══
+const App = {
+  components: { LoginView, ChatView, VideoView, FileNotifyModal, HelpModal },
+  setup() {
+    // 当前视图
+    const view = ref('login'); // 'login' | 'chat' | 'video'
+    // 使用说明弹窗
+    const showHelp = ref(false);
+    // 房间信息
+    const roomId = ref('');
+    const nickname = ref('');
+    const myPeerId = ref('');
+    const cryptoKey = ref(null);
+    const room = ref(null);
+    // 成员与消息
+    const members = reactive([]);
+    const messages = reactive([]);
+    // 视频
+    const inCallStream = ref(null);
+    const remoteStreams = reactive({});
+    // 文件通知（修复 Bug #2: 分离 incoming 和 complete 状态）
+    const fileNotify = reactive({
+      show: false,
+      meta: null,          // 文件元数据（fileId 为 Number）
+      pendingBuffer: null, // 已接收完但用户尚未操作的 buffer
+      isReceiving: true,   // 是否还在接收中
+      fromPeerId: ''
+    });
+    // UI 状态
+    const statusMsg = ref('');
+    const errorMsg = ref('');
+    const isConnecting = ref(false);
+    const toast = ref('');
+    const sendingFiles = reactive({}); // peerId → 0-100
+    let toastTimer = null;
+
+    // 显示 Toast
+    function showToast(msg) {
+      toast.value = msg;
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.value = ''; }, 2500);
+    }
+
+    // 添加系统消息
+    function addSys(text) {
+      messages.push({ id: Date.now() + Math.random(), type: 'system', text });
+    }
+
+    // ── 登录 ──
+    async function handleLogin({ roomIdVal, passwordVal, nicknameVal }) {
+      errorMsg.value = '';
+      if (!roomIdVal) { errorMsg.value = '请输入房间号'; return; }
+      if (!passwordVal) { errorMsg.value = '请输入密码'; return; }
+      if (!nicknameVal) { errorMsg.value = '请输入昵称'; return; }
+      if (passwordVal.length < 4) { errorMsg.value = '密码至少 4 位'; return; }
+
+      isConnecting.value = true;
+      statusMsg.value = '正在派生加密密钥…';
+
+      try {
+        const key = await CryptoUtils.deriveKey(roomIdVal, passwordVal);
+        cryptoKey.value = key;
+        roomId.value = roomIdVal;
+        nickname.value = nicknameVal;
+
+        // 计算共享房间Hash（用于自动发现宿主）
+        statusMsg.value = '正在计算房间Hash…';
+        const roomHash = await CryptoUtils.hashRoom(roomIdVal, passwordVal);
+
+        statusMsg.value = '正在连接 P2P 网络…';
+
+        const r = new FamilyRoom({
+          roomId: roomIdVal,
+          roomHash: roomHash,
+          nickname: nicknameVal,
+          cryptoKey: key,
+
+          onReady(peerId) {
+            myPeerId.value = peerId;
+            isConnecting.value = false;
+            view.value = 'chat';
+          },
+
+          onStatus(text) {
+            statusMsg.value = text;
+          },
+
+          // 宿主自己也要显示在在线列表
+          onHostJoined(info) {
+            if (!members.find(m => m.peerId === info.peerId)) {
+              members.push({ peerId: info.peerId, nickname: info.nickname + '（我·宿主）', online: true, isMe: true });
+            }
+          },
+
+          onMemberJoin(info) {
+            if (!members.find(m => m.peerId === info.peerId)) {
+              members.push({ peerId: info.peerId, nickname: info.nickname, online: true });
+              addSys(`${info.nickname} 加入了家庭 🏠`);
+            } else {
+              // 更新昵称
+              const idx = members.findIndex(m => m.peerId === info.peerId);
+              if (idx !== -1 && !members[idx].isMe) {
+                members[idx].nickname = info.nickname;
+              }
+            }
+          },
+
+          onMemberLeave(peerId) {
+            const idx = members.findIndex(m => m.peerId === peerId);
+            if (idx !== -1) {
+              addSys(`${members[idx].nickname} 离开了房间`);
+              members.splice(idx, 1);
+            }
+            if (remoteStreams[peerId]) delete remoteStreams[peerId];
+          },
+
+          onMessage(msg) {
+            messages.push({
+              id: Date.now() + Math.random(),
+              type: 'chat',
+              self: false,
+              ...msg
+            });
+          },
+
+          onFileIncoming({ meta, fromPeerId }) {
+            fileNotify.show = true;
+            fileNotify.meta = meta;
+            fileNotify.fromPeerId = fromPeerId;
+            fileNotify.pendingBuffer = null;
+            fileNotify.isReceiving = true;
+          },
+
+          onFileComplete({ fileId, buffer, meta, fromPeerId }) {
+            if (fileNotify.show && fileNotify.meta && fileNotify.meta.fileId === fileId) {
+              fileNotify.pendingBuffer = buffer;
+              fileNotify.isReceiving = false;
+              if (fileNotify._pendingAccept) {
+                fileNotify._pendingAccept = false;
+                doSaveFile(buffer, fileNotify.meta);
+                fileNotify.show = false;
+                fileNotify.pendingBuffer = null;
+              }
+            }
+          },
+
+          onRemoteStream({ peerId, stream }) {
+            remoteStreams[peerId] = stream;
+          },
+
+          onRemoteStreamClose(peerId) {
+            if (remoteStreams[peerId]) delete remoteStreams[peerId];
+          },
+
+          onError(err) {
+            const msg = err.message || err.type || String(err);
+            // 宿主无响应不算致命错误，正常进入聊天页
+            if (msg.includes('宿主无响应') || msg.includes('等待其他成员')) {
+              statusMsg.value = '已进入房间（等待其他家人加入）';
+            } else {
+              errorMsg.value = `连接错误: ${msg}`;
+            }
+            isConnecting.value = false;
+          }
+        });
+
+        room.value = r;
+        await r.init();
+      } catch (e) {
+        errorMsg.value = `初始化失败: ${e.message}`;
+        isConnecting.value = false;
+      }
+    }
+
+    // ── 发送消息 ──
+    async function sendMessage(text) {
+      if (!room.value || !text.trim()) return;
+      try {
+        const msg = await room.value.broadcastMessage(text);
+        messages.push({
+          id: Date.now() + Math.random(),
+          type: 'chat',
+          self: true,
+          nickname: nickname.value,
+          text: msg.text,
+          time: msg.time
+        });
+      } catch (e) {
+        showToast('发送失败: ' + e.message);
+      }
+    }
+
+    // ── 连接成员 ──
+    function connectMember(peerId) {
+      if (!room.value) return;
+      room.value.connectToPeer(peerId);
+      showToast('正在连接…');
+    }
+
+    // ── 发起视频通话 ──
+    async function startCall() {
+      if (!room.value) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24 } },
+          audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 }
+        });
+        inCallStream.value = stream;
+        await room.value.startVideoCall(stream);
+        view.value = 'video';
+      } catch (e) {
+        if (e.name === 'NotAllowedError') {
+          errorMsg.value = '请允许摄像头和麦克风权限';
+        } else if (e.name === 'NotFoundError') {
+          errorMsg.value = '未找到摄像头或麦克风设备';
+        } else {
+          errorMsg.value = `无法获取摄像头: ${e.message}`;
+        }
+      }
+    }
+
+    // ── 结束通话 ──
+    function endCall() {
+      if (room.value) room.value.stopVideoCall();
+      inCallStream.value = null;
+      view.value = 'chat';
+    }
+
+    // ── 发送文件 ──
+    async function sendFile(targetPeerId, file) {
+      if (!room.value) return;
+      sendingFiles[targetPeerId] = 0;
+      try {
+        await room.value.sendFile(targetPeerId, file, pct => {
+          sendingFiles[targetPeerId] = pct;
+          if (pct === 100) {
+            setTimeout(() => delete sendingFiles[targetPeerId], 2000);
+            showToast(`文件「${file.name}」发送完成 ✓`);
+          }
+        });
+      } catch (e) {
+        delete sendingFiles[targetPeerId];
+        showToast(`发送失败: ${e.message}`);
+      }
+    }
+
+    // ── 保存文件到磁盘 ──
+    function doSaveFile(buffer, meta) {
+      try {
+        const blob = new Blob([buffer], { type: meta?.mimeType || 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = meta?.name || 'received-file';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        showToast(`文件「${meta?.name || 'file'}」已保存 ✓`);
+      } catch (e) {
+        showToast('保存失败: ' + e.message);
+      }
+    }
+
+    // ── 接受文件 ──
+    function handleFileAccept() {
+      if (fileNotify.pendingBuffer) {
+        // 文件已全部到达，直接保存
+        doSaveFile(fileNotify.pendingBuffer, fileNotify.meta);
+        fileNotify.show = false;
+        fileNotify.pendingBuffer = null;
+        fileNotify._pendingAccept = false;
+      } else {
+        // 文件还在传输中，标记为待保存
+        fileNotify._pendingAccept = true;
+        showToast('文件接收中，完成后自动保存…');
+      }
+    }
+
+    // ── 拒绝文件 ──
+    function handleFileReject() {
+      // 清空内存中的 buffer（GC 会回收）
+      fileNotify.show = false;
+      fileNotify.pendingBuffer = null;
+      fileNotify._pendingAccept = false;
+      fileNotify.meta = null;
+    }
+
+    // ── 离开房间 ──
+    async function leaveRoom() {
+      if (room.value) {
+        await room.value.leave();
+        room.value = null;
+      }
+      members.splice(0);
+      messages.splice(0);
+      inCallStream.value = null;
+      Object.keys(remoteStreams).forEach(k => delete remoteStreams[k]);
+      fileNotify.show = false;
+      fileNotify.pendingBuffer = null;
+      view.value = 'login';
+      statusMsg.value = '';
+      errorMsg.value = '';
+    }
+
+    // 页面卸载时清理
+    onBeforeUnmount(() => {
+      if (room.value) room.value.leave().catch(() => {});
+    });
+
+    return {
+      view, roomId, nickname, myPeerId,
+      members, messages, inCallStream, remoteStreams,
+      fileNotify, statusMsg, errorMsg, isConnecting,
+      sendingFiles, toast, showHelp,
+      handleLogin, sendMessage, connectMember, startCall, endCall,
+      sendFile, handleFileAccept, handleFileReject, leaveRoom, showToast
+    };
+  },
+
+  template: `
+    <LoginView
+      v-if="view === 'login'"
+      :error="errorMsg"
+      :loading="isConnecting"
+      :status="statusMsg"
+      @login="handleLogin"
+      @show-help="showHelp = true"
+    />
+    <ChatView
+      v-else-if="view === 'chat'"
+      :my-peer-id="myPeerId"
+      :room-id="roomId"
+      :nickname="nickname"
+      :members="members"
+      :messages="messages"
+      :sending-files="sendingFiles"
+      @send-message="sendMessage"
+      @connect-member="connectMember"
+      @start-call="startCall"
+      @send-file="sendFile"
+      @leave="leaveRoom"
+      @copy-toast="showToast"
+    />
+    <VideoView
+      v-else-if="view === 'video'"
+      :local-stream="inCallStream"
+      :remote-streams="remoteStreams"
+      :members="members"
+      :nickname="nickname"
+      @end-call="endCall"
+    />
+
+    <FileNotifyModal
+      v-if="fileNotify.show"
+      :meta="fileNotify.meta"
+      :is-receiving="fileNotify.isReceiving"
+      @accept="handleFileAccept"
+      @reject="handleFileReject"
+    />
+
+    <HelpModal
+      v-if="showHelp"
+      @close="showHelp = false"
+    />
+
+    <div v-if="toast" class="toast">{{ toast }}</div>
+  `
+};
+
+// 挂载 App
+createApp(App).mount('#app');
+</script>
+</body>
+</html>
